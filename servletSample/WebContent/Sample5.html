@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="css/style.css">
+	<title>登録</title>
+
+	<script>
+	//入力データのチェック
+	function check () {
+		var teacherID = document.Form.teacherID.value; //テキストボックスの教員番号取得
+		var year = document.Form.year.value; //テキストボックスの年取得
+		var month = document.Form.month.value; //テキストボックスの月取得
+		var day = document.Form.day.value; //テキストボックスの日取得
+		var year2 = document.Form.year2.value; //テキストボックスの年取得
+		var month2 = document.Form.month2.value; //テキストボックスの月取得
+		var day2 = document.Form.day2.value; //テキストボックスの日取得
+		var coment = document.Form.coment.value; //テキストボックスの内容取得
+		var flg=0;
+		var check=0;
+
+		//未入力の項目があればアラートを出す
+		//教員番号
+		if(teacherID == ""){
+			alert ( "教員番号を入力して下さい。" );
+			document.Form.teacherID.focus();
+			return false;
+		}
+		//年月日
+		if(year=="" || month=="" || day==""){
+			alert ( "年月日を入力して下さい。" );
+			return false;
+		}
+		//内容
+		if(coment == ""){
+			alert ( "お知らせする内容を入力して下さい。" );
+			document.Form.coment.focus();
+			return false;
+		}
+
+		//表示終了月日が入っているかのチェック
+		if(month2=="" && day2==""){	//月日が入っていないなら
+			check = 0;
+		}else{
+			//表示終了月日のどちらかが入力されていて、どちらかが入力されていなければアラートを出す
+			if(month2!="" && day2!=""){	//両方入力されている
+				check = 1;
+			}else{
+				alert ("予定の表示終了の日付に未入力の項目があります。");
+				return false;
+			}
+		}
+
+		//入力データがおかしければ、アラートを出す
+		//教員番号
+		if(teacherID.charAt(0)=="t" && teacherID.length==3){	//入力された教員番号の1文字目がt かつ 三文字
+			//存在する教員番号かどうかチェック
+			var a = teacherID.slice(-2);	//入力されれた教員番号の後ろ2文字を抜き出す
+			Number(a);	//数値に変換
+			if(a>0 && a<=71){
+			}else{
+				alert("入力された教員番号に誤りがあります。1");
+				document.Form.teacherID.focus();
+				return false;
+			}
+		}else{
+			alert("入力された教員番号に誤りがあります。2");
+			document.Form.teacherID.focus();
+			return false;
+		}
+		//年（今年以上、+3年まで）
+		if(year>=kyear && year<=kyear+3){
+		}else{
+			alert("入力データに誤りがあります。(年)");
+			return false;
+		}
+		//月（1～12月）
+		if(month>=1 && month<=12){
+			//年が今年なら、今月より前の月はfalse
+			if(year==kyear && month<kmonth){
+				alert("入力データに誤りがあります。(月)1");
+				return false;
+			}else if(year==kyear && month==kmonth){
+				flg=1;
+			}
+		}else{
+			alert("入力データに誤りがあります。(月)2");
+			return false;
+		}
+		//日
+		if(day>=1 && day<=31){
+			if(flg==1 && day<kday){
+				alert("入力データに誤りがあります。(日)1");
+				return false;
+			}
+		}else{
+			alert("入力データに誤りがあります。(日)2");
+			return false;
+		}
+
+		//終了日
+		if(check==1){	//終了日が入力されていたら
+			//年（表示開始年以上、+1年まで）
+			if(year2>=year && year2<=kyear+3){
+			}else{
+				alert("入力データに誤りがあります。1");
+				return false;
+			}
+			//月（1～12月）
+			if(month2>=1 && month2<=12){
+				//表示終了年が開始年と同じなら、表示開始月より前の月はfalse
+				if(year2==year && month2<month){
+					alert("入力データに誤りがあります。2");
+					return false;
+				}else if(year2==year && month2==month){
+					//表示開始年月と表示終了年月が同じだったら、flg=1
+					flg=1;
+				}
+			}else{
+				alert("入力データに誤りがあります。3");
+				return false;
+			}
+			//日
+			if(day2>=1 && day2<=31){
+				if(flg==1 && day2<day){
+					alert("入力データに誤りがあります。4");
+					return false;
+				}
+			}else{
+				alert("入力データに誤りがあります。5");
+				return false;
+			}
+		}
+
+		//日付が存在するかチェック
+		//表示開始日
+		var date = new Date(year,month-1,day);
+		var m = date.getMonth()+1;
+		if(month==m){
+		} else {
+			alert("存在しない日付です。");
+			return false;
+		}
+
+		//表示終了日
+		if(month2>0 && day2>0){
+			var date = new Date(year,month2-1,day);
+			var m = date.getMonth()+1;
+			if(month2==m){
+			} else {
+				alert("存在しない日付です。");
+				return false;
+			}
+		}
+
+		return true;
+	}
+	</script>
+</head>
+
+<body>
+	<center><h1>登録</h1></center>
+	<br/>
+
+	<form action="http://localhost:8080/servletSample/servlet/InputSample" method="GET" name="Form" onSubmit="return check();">
+
+		<!-- ID(年月日時分秒) -->
+		<div id="id"></div>
+		<script>
+			//日付データ取得
+			var hiduke=new Date();
+
+			//年
+			var kyear = hiduke.getFullYear();
+
+			//月
+			var kmonth = hiduke.getMonth()+1;
+			//月が一桁の場合
+			if(kmonth<10){
+				//0をつける
+				kmonth="0"+kmonth;
+			}
+
+			//日
+			var kday = hiduke.getDate();
+			//日が一桁の場合
+			if(kday<10){
+				kday="0"+kday;
+			}
+
+			//時間
+			var hour = hiduke.getHours();
+			//時間が一桁の場合
+			if(hour<10){
+				hour="0"+hour;
+			}
+
+			//分
+			var min = hiduke.getMinutes();
+			//分が一桁の場合
+			if(min<10){
+				min="0"+min;
+			}
+
+			//秒
+    		var sec = hiduke.getSeconds();
+			//秒が一桁の場合
+    		if(sec<10){
+				sec="0"+sec;
+			}
+
+			//div id="id"に日付データを表示
+			document.getElementById("id").innerHTML = "<input type='hidden' name='id' value='"+kyear+""+kmonth+""+kday+""+hour+""+min+""+sec+"' />";
+		</script>
+
+		<!-- 教員番号入力 -->
+		<h2>教員番号<input type="text" name="teacherID"/></h2>
+		<br/><br/><br/>
+
+		表示する日
+		<!-- 年入力 -->
+		<div id="tosi"></div>
+		<script>
+			var hiduke=new Date();
+			//年取得
+			var kyear = hiduke.getFullYear();
+			//id="tosi"に年を入力(デフォルトで今の年を入れておく)
+			document.getElementById("tosi").innerHTML = "<input type='text' name='year' value='"+kyear+"'/>年";
+		</script>
+
+		<!-- 月入力 -->
+		<input type="text" name="month"/>月
+
+		<!-- 日入力 -->
+		<input type="text" name="day"/>日
+
+		<br/><br/>
+		から
+		<br/><br/>
+
+		<div id="tosi2"></div>
+		<script>
+			//var hiduke=new Date();
+			//年取得
+			//var kyear = hiduke.getFullYear();
+			//id="tosi"に年を入力(デフォルトで今の年を入れておく)
+			document.getElementById("tosi2").innerHTML = "<input type='text' name='year2' value='"+kyear+"'/>年";
+		</script>
+
+		<!-- 表示終了月入力 -->
+		<input type="text" name="month2"/>月
+
+		<!-- 表示終了日入力 -->
+		<input type="text" name="day2"/>日
+
+		<br/><br/>
+
+		<!-- 内容入力ボックス -->
+		<table>
+			<br/><br/><br/>
+			<tr>
+				<td>
+					<textarea cols="50" rows="7" name="coment"></textarea>
+				</td>
+			</tr>
+		</table>
+
+		<!-- ボタン表示 -->
+		<div id="bottom1">
+			<!-- ホームへ -->
+			<input type="button" onclick="location.href='http://localhost:8080/servletSample/index.jsp'" value="キャンセル" style="width:100px; height:50px" >&nbsp;&nbsp;&nbsp;
+			<!-- データをInputSample.javaへ送信するボタン -->
+			<input type="submit" value="登録" style="width:100px; height:50px" >
+		</div>
+
+	</form>
+</body>
+</html>
